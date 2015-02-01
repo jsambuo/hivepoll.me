@@ -1,5 +1,5 @@
 # hivepoll.me
-hivepoll.me is a web application that lets you get live presentation feedback to connect with your audience
+hivepoll.me is a web application that lets you get live presentation feedback to connect with your audience.
 
 When you need to communicate to a group of people, building a connection is vital to improve that communication. In a typical setting, if you need to ask a group a question, it’s tough to get an accurate analysis of what people answer in a timely matter. We’ve decided to make a solution.
 

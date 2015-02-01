@@ -1,0 +1,143 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- build:js scripts/vendor/modernizr.js -->
+    <script src="bower_components/modernizr/modernizr.js"></script>
+    <!-- endbuild -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="jumbotron" style="text-align: center;">
+        <div id="main">
+          <h1>Presentor</h1>
+          <div id="questions">
+          </div>
+          <button id="endSession">End Session</button>
+        </div>
+        <div id="sessionEnded" style="display: none;">
+          <h1>Your session has ended</h1>
+        </div>
+      </div>
+    </div>
+
+
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      ga('create','UA-XXXXX-X');ga('send','pageview');
+    </script>
+
+
+        <!-- build:js scripts/main.js -->
+        <script src="bower_components/jquery/jquery.js"></script>
+        <script src="scripts/main.js"></script>
+        <script src="scripts/hello.js"></script>
+        <!-- endbuild -->
+
+        <!-- build:js scripts/vendor/bootstrap.js -->
+        <script src="bower_components/bootstrap/js/affix.js"></script>
+        <script src="bower_components/bootstrap/js/alert.js"></script>
+        <script src="bower_components/bootstrap/js/dropdown.js"></script>
+        <script src="bower_components/bootstrap/js/tooltip.js"></script>
+        <script src="bower_components/bootstrap/js/modal.js"></script>
+        <script src="bower_components/bootstrap/js/transition.js"></script>
+        <script src="bower_components/bootstrap/js/button.js"></script>
+        <script src="bower_components/bootstrap/js/popover.js"></script>
+        <script src="bower_components/bootstrap/js/carousel.js"></script>
+        <script src="bower_components/bootstrap/js/scrollspy.js"></script>
+        <script src="bower_components/bootstrap/js/collapse.js"></script>
+        <script src="bower_components/bootstrap/js/tab.js"></script>
+        <!-- endbuild -->
+
+        <!-- Manual -->
+        <script src="bower_components/socket.io-client/socket.io.js"></script>
+
+        <script>
+        $(function(){
+          function getParameterByName(name) {
+              name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+              var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                  results = regex.exec(location.search);
+              return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+          };
+          var roomName = getParameterByName("pollId");
+          //Get questions from api
+          $.get("/poll/" + roomName,function(poll){
+            //Add questions to screen
+            console.log(questions);
+            poll.questions.forEach(function(value){
+              var button = $("<button>" + value.question +"</button>").click(function(){
+                var roomName = getParameterByName("pollId");
+                socket.emit('display-question', roomName, value);
+                });
+              $("#questions").append(button);
+              $("#questions").append("<br>");
+            });
+
+          });
+
+          var socket = io('');
+          socket.emit('join-room', roomName);
+
+          function refreshAnswers() {
+            $("#results").empty();
+            var possibleAnswers = Object.keys(answers);
+            possibleAnswers.forEach(function(key){
+              $("#results").append(key + ": " + answers[key] + "<br>" );
+            });
+
+          };
+
+          socket.on('question-loaded', function(question){
+            answers = {};
+            $("#waiting").hide();
+            $("#questionDisplay").show();
+            question.possibleAnswers.forEach(function(value){
+              answers[value] = 0;
+            });
+            refreshAnswers();
+            console.log(question);
+          });
+
+          socket.on('answer', function(answer){
+            answers[answer]++;
+            refreshAnswers();
+            console.log(answer);
+
+          });
+
+          socket.on('session-ended', function(){
+            console.log("session ended");
+            $("#main").hide();
+            $("#sessionEnded").show();
+          });
+
+          socket.on('connections updated', function(numClients){
+            console.log("number of clients: " + numClients);
+          });
+
+          $('#endSession').click(function(){
+            socket.emit('end-session', roomName);
+          });
+        });
+        </script>
+</body>
+</html>

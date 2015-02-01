@@ -1,0 +1,141 @@
+<!doctype html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js"> <!--<![endif]-->
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Place favicon.ico and apple-touch-icon.png in the root directory -->
+    <link rel="stylesheet" href="styles/main.css">
+    <!-- build:js scripts/vendor/modernizr.js -->
+    <script src="bower_components/modernizr/modernizr.js"></script>
+    <!-- endbuild -->
+  </head>
+  <body>
+    <div class="container">
+      <div class="jumbotron">
+        <h1>Debug Page</h1>
+        <input id="pollName" type="text" /><button id="btnConnect">Join</button>
+        <div id="debugButtons">
+          <button id="btnQuestion">Present Question</button>
+          <button id="btnAnswer">Send Answer</button>
+          <button id="btnEnd">End Session</button>
+        </div>
+        <div id="debugArea"></div>
+      </div>
+    </div>
+
+
+    <!--[if lt IE 7]>
+      <p class="browsehappy">You are using an <strong>outdated</strong> browser. Please <a href="http://browsehappy.com/">upgrade your browser</a> to improve your experience.</p>
+    <![endif]-->
+
+    <!-- Google Analytics: change UA-XXXXX-X to be your site's ID. -->
+    <script>
+      (function(b,o,i,l,e,r){b.GoogleAnalyticsObject=l;b[l]||(b[l]=
+      function(){(b[l].q=b[l].q||[]).push(arguments)});b[l].l=+new Date;
+      e=o.createElement(i);r=o.getElementsByTagName(i)[0];
+      e.src='//www.google-analytics.com/analytics.js';
+      r.parentNode.insertBefore(e,r)}(window,document,'script','ga'));
+      ga('create','UA-XXXXX-X');ga('send','pageview');
+    </script>
+
+  <!-- Manual -->
+  <script src="bower_components/socket.io-client/socket.io.js"></script>
+
+
+        <!-- build:js scripts/main.js -->
+        <script src="bower_components/jquery/jquery.js"></script>
+        <script>
+          var socket;
+          var roomName;
+          $('#btnConnect').click(function(){
+
+            roomName = $('#pollName').val();
+
+            socket = io('');
+            socket.emit('join-room', roomName);
+
+            socket.on('question-loaded', function(question){
+              console.log(question);
+              $('#debugArea').append(JSON.stringify(question));
+              $('#debugArea').append("<br>");
+            });
+
+            socket.on('answer', function(answer){
+              console.log(answer);
+              $('#debugArea').append(JSON.stringify(answer));
+              $('#debugArea').append("<br>");
+            });
+
+            socket.on('session-ended', function(){
+              console.log("session ended");
+              $('#debugArea').append("session ended");
+              $('#debugArea').append("<br>");
+            });
+
+            socket.on('disconnect', function(){
+              console.log("disconnected");
+              $('#debugArea').append("disconnected");
+              $('#debugArea').append("<br>");
+            });
+
+            socket.on('connections updated', function(numClients){
+              console.log("number of clients: " + numClients);
+              $('#debugArea').append("number of clients: " + numClients);
+              $('#debugArea').append("<br>");
+            });
+
+            $('#debugButtons').children().prop('disabled', false);
+            $('#btnConnect').prop('disabled', true);
+            $('#pollName').prop('disabled', true);
+
+          });
+
+          $('#btnQuestion').click(function(){
+            var question = {
+      		    'question': 'What is your favorite color?',
+      		    'possibleAnswers': [
+      		      'Red',
+      		      'Blue',
+      		      'Green'
+      		    ]
+      		  };
+            socket.emit('display-question', roomName, question);
+          });
+
+          $('#btnAnswer').click(function(){
+            var answer = "Blue";
+            socket.emit('answer-question', roomName, answer);
+          });
+
+          $('#btnEnd').click(function(){
+            socket.emit('end-session', roomName);
+          });
+
+          $(function(){
+            $('#debugButtons').children().prop('disabled', true);
+          });
+        </script>
+        <!-- endbuild -->
+
+        <!-- build:js scripts/vendor/bootstrap.js -->
+        <script src="bower_components/bootstrap/js/affix.js"></script>
+        <script src="bower_components/bootstrap/js/alert.js"></script>
+        <script src="bower_components/bootstrap/js/dropdown.js"></script>
+        <script src="bower_components/bootstrap/js/tooltip.js"></script>
+        <script src="bower_components/bootstrap/js/modal.js"></script>
+        <script src="bower_components/bootstrap/js/transition.js"></script>
+        <script src="bower_components/bootstrap/js/button.js"></script>
+        <script src="bower_components/bootstrap/js/popover.js"></script>
+        <script src="bower_components/bootstrap/js/carousel.js"></script>
+        <script src="bower_components/bootstrap/js/scrollspy.js"></script>
+        <script src="bower_components/bootstrap/js/collapse.js"></script>
+        <script src="bower_components/bootstrap/js/tab.js"></script>
+        <!-- endbuild -->
+</body>
+</html>

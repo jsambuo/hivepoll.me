@@ -1,0 +1,27 @@
+{
+  "name": "mypoll.me",
+  "version": "1.0.0",
+  "description": "Real time information polling from audience",
+  "main": "server.js",
+  "dependencies": {
+    "body-parser": "^1.11.0",
+    "express": "^4.11.1",
+    "multer": "^0.1.7",
+    "socket.io": "^1.3.2"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jsambuo/mypoll.me.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/jsambuo/mypoll.me/issues"
+  },
+  "homepage": "https://github.com/jsambuo/mypoll.me"
+}
